@@ -151,16 +151,24 @@
           ]
         },
         {
-          "name": "AMAZON.RepeatIntent"
+         "name": "AMAZON.FallbackIntent",
+         "samples": []
         },
         {
-          "name": "AMAZON.HelpIntent"
+          "name": "AMAZON.RepeatIntent",
+          "samples": []
         },
         {
-          "name": "AMAZON.StopIntent"
+          "name": "AMAZON.HelpIntent",
+          "samples": []
         },
         {
-          "name": "AMAZON.CancelIntent"
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
         }
       ],
       "types": [

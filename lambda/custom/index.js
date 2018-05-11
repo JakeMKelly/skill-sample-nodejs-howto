@@ -82,6 +82,31 @@ const RecipeHandler = {
   }
 };
 
+const FallbackHandler = {
+  // 2018-May-01: AMAZON.FallackIntent is only currently available in en-US locale.
+  //              This handler will not be triggered except in that locale, so it can be
+  //              safely deployed for any locale.
+  canHandle(handlerInput) {
+    const request = handlerInput.requestEnvelope.request;
+    return request.type === 'IntentRequest'
+      && request.intent.name === 'AMAZON.FallbackIntent';
+  },
+  handle(handlerInput) {
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
+    const item = requestAttributes.t(getRandomItem(Object.keys(recipes.RECIPE_EN_US)));
+
+    sessionAttributes.speakOutput = requestAttributes.t('FALLBACK_MESSAGE', requestAttributes.t('SKILL_NAME'), item);
+    sessionAttributes.repromptSpeech = requestAttributes.t('FALLBACK_REPROMPT');
+
+    return handlerInput.responseBuilder
+      .speak(sessionAttributes.speakOutput)
+      .reprompt(sessionAttributes.repromptSpeech)
+      .getResponse();
+  },
+};
+
 const HelpHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest'
@@ -162,6 +187,7 @@ const ErrorHandler = {
 
 /* CONSTANTS */
 const skillBuilder = Alexa.SkillBuilders.custom();
+
 const languageStrings = {
   en: {
     translation: {
@@ -178,6 +204,8 @@ const languageStrings = {
       RECIPE_NOT_FOUND_WITH_ITEM_NAME: 'the recipe for %s. ',
       RECIPE_NOT_FOUND_WITHOUT_ITEM_NAME: 'that recipe. ',
       RECIPE_NOT_FOUND_REPROMPT: 'What else can I help with?'
+      FALLBACK_MESSAGE = `The %s skill can\'t help you with that.  It can help you discover crafting recipes for a minecraft item if you say something like, what\'s the recipe for a %s? What can I help you with?`;
+      FALLBACK_REPROMPT = 'What can I help you with?';
     },
   },
   'en-US': {
@@ -239,6 +267,7 @@ function getRandomItem(arrayOfItems) {
 /* LAMBDA SETUP */
 exports.handler = skillBuilder
   .addRequestHandlers(
+    FallbackHandler,
     LaunchRequestHandler,
     RecipeHandler,
     HelpHandler,
